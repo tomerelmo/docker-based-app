@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Mission</title>
+</head>
+<body>
+    <h1>User Mission</h1>
+    <p>{{ mission }}</p>
+
+    <!-- Add Mission Button -->
+    <form action="/add_mission?user_id={{ user_id }}" method="post">
+        <input type="text" name="new_mission" placeholder="Enter new mission">
+        <button type="submit">Add Mission</button>
+    </form>
+
+    <!-- Delete Mission Button -->
+    <form action="/delete_mission?user_id={{ user_id }}" method="post">
+        <button type="submit">Delete Mission</button>
+    </form>
+
+    <a href="/">Back to Home</a>
+</body>
+</html>
