@@ -1,10 +1,11 @@
-from flask import Flask, request, jsonify, render_template , redirect, url_for
+from flask import Flask, request, jsonify, render_template , redirect, url_for , session
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash
 from sqlalchemy.exc import IntegrityError
 from werkzeug.security import check_password_hash
 
 app = Flask(__name__)
+app.secret_key = 'your_secret_key122'
 
 # Database configuration
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://username:password@db/mission'
@@ -47,6 +48,7 @@ def login():
         user = User.query.filter_by(username=username).first()
         if user and check_password_hash(user.password, password):
             # Login successful, redirect to mission page
+            session['user_id'] = user.id
             return redirect(url_for('mission', user_id=user.id))
         else:
             # Invalid credentials, show an error
@@ -88,6 +90,10 @@ def register():
         # GET request, show the registration form
         return render_template('register.html')
 
+@app.route('/logout')
+def logout():
+    session.pop('user_id', None)  # Remove user_id from session
+    return redirect(url_for('main'))  # Redirect to the main page
 
 
 @app.route('/add_mission', methods=['POST'])
@@ -117,10 +123,13 @@ def delete_mission():
 
 @app.route('/mission')
 def mission():
-    user_id = request.args.get('user_id')
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('login'))  # Redirect to login if not logged in
+
     user = User.query.filter_by(id=user_id).first()
     if user:
-        return render_template('mission.html', mission=user.mission, user_id=user_id)
+        return render_template('mission.html', mission=user.mission)
     else:
         return render_template('error.html', message='User not found'), 404
 
