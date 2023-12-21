@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template , redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash
 from sqlalchemy.exc import IntegrityError
@@ -89,15 +89,40 @@ def register():
 
 
 
-@app.route('/mission')
-def mission():
-    # Assuming user_id is passed as query parameter
+@app.route('/add_mission', methods=['POST'])
+def add_mission():
+    user_id = request.args.get('user_id')
+    new_mission = request.form.get('new_mission')
+    user = User.query.filter_by(id=user_id).first()
+    if user:
+        user.mission = new_mission
+        db.session.commit()
+        return redirect(url_for('mission', user_id=user_id))
+    else:
+        return render_template('error.html', message='User not found'), 404
+
+
+@app.route('/delete_mission', methods=['POST'])
+def delete_mission():
     user_id = request.args.get('user_id')
     user = User.query.filter_by(id=user_id).first()
     if user:
-        return jsonify({'mission': user.mission})
+        user.mission = None
+        db.session.commit()
+        return redirect(url_for('mission', user_id=user_id))
     else:
-        return jsonify({'error': 'User not found'}), 404
+        return render_template('error.html', message='User not found'), 404
+
+
+@app.route('/mission')
+def mission():
+    user_id = request.args.get('user_id')
+    user = User.query.filter_by(id=user_id).first()
+    if user:
+        return render_template('mission.html', mission=user.mission, user_id=user_id)
+    else:
+        return render_template('error.html', message='User not found'), 404
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
