@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template , redirect, url_for , session
+from flask import Flask, request, jsonify, render_template , redirect, url_for , session , flash
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash
 from sqlalchemy.exc import IntegrityError
@@ -98,12 +98,26 @@ def logout():
 
 @app.route('/add_mission', methods=['POST'])
 def add_mission():
-    user_id = request.args.get('user_id')
+    # Check if user is logged in
+    user_id = session.get('user_id')
+    if not user_id:
+        flash("You need to be logged in to add a mission.")
+        return redirect(url_for('login'))
+
+    # Get the new mission from form data
     new_mission = request.form.get('new_mission')
+
+    # Basic validation
+    if not new_mission:
+        flash("Please enter a mission.")
+        return redirect(url_for('mission', user_id=user_id))
+
+    # Find the user and update the mission
     user = User.query.filter_by(id=user_id).first()
     if user:
         user.mission = new_mission
         db.session.commit()
+        flash("Mission added successfully.")
         return redirect(url_for('mission', user_id=user_id))
     else:
         return render_template('error.html', message='User not found'), 404
