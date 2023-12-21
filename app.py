@@ -27,33 +27,34 @@ with app.app_context():
 def main():
     return render_template('index.html')
 
+from flask import Flask, render_template, request, redirect, url_for, jsonify
+from werkzeug.security import check_password_hash
+# ... other imports and setup ...
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        # Extract data depending on content type
-        if request.content_type == 'application/json':
-            data = request.json
-        else:  # Assume form data
-            data = request.form
+        data = request.form  # Assuming you're using form data for login
 
         username = data.get('username')
         password = data.get('password')
 
         # Basic validation
         if not username or not password:
-            return jsonify({'error': 'Username and password are required'}), 400
+            return render_template('login.html', error='Username and password are required')
 
-        # Check if user exists
+        # Check if user exists and password is correct
         user = User.query.filter_by(username=username).first()
         if user and check_password_hash(user.password, password):
-            # Login successful
-            return jsonify({'message': 'Login successful', 'user_id': user.id}), 200
+            # Login successful, redirect to mission page
+            return redirect(url_for('mission', user_id=user.id))
         else:
-            # Invalid credentials
-            return jsonify({'error': 'Invalid username or password'}), 401
+            # Invalid credentials, show an error
+            return render_template('login.html', error='Invalid username or password')
     else:
         # GET request, show the login form
         return render_template('login.html')
+
 
 # Implement registration logic using flask @app.route and sqlalchemy
 @app.route('/register', methods=['GET', 'POST'])
