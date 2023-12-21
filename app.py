@@ -18,6 +18,10 @@ class User(db.Model):
     mission = db.Column(db.String(200))
     password = db.Column(db.String(200))
 
+
+with app.app_context():
+    db.create_all()
+
 # Routes
 @app.route('/')
 def main():
