@@ -44,18 +44,24 @@ def login():
         if not username or not password:
             return render_template('login.html', error='Username and password are required')
 
-        # Check if user exists and password is correct
+        # Check if user exists
         user = User.query.filter_by(username=username).first()
-        if user and check_password_hash(user.password, password):
+        if not user:
+            # Username does not exist
+            return render_template('index.html', error='No such username exists')
+
+        # Check if password is correct
+        if check_password_hash(user.password, password):
             # Login successful, redirect to mission page
             session['user_id'] = user.id
             return redirect(url_for('mission', user_id=user.id))
         else:
-            # Invalid credentials, show an error
-            return render_template('login.html', error='Invalid username or password')
+            # Password is incorrect
+            return render_template('login.html', error='Invalid password')
     else:
         # GET request, show the login form
         return render_template('login.html')
+
 
 
 # Implement registration logic using flask @app.route and sqlalchemy
