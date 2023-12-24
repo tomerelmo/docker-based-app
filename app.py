@@ -16,8 +16,14 @@ db = SQLAlchemy(app)
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
-    mission = db.Column(db.String(200))
     password = db.Column(db.String(200))
+    missions = db.relationship('Mission', backref='user', lazy=True)
+
+class Mission(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.String(200), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
 
 
 with app.app_context():
@@ -116,54 +122,48 @@ def logout():
 
 @app.route('/add_mission', methods=['POST'])
 def add_mission():
-    # Check if user is logged in
     user_id = session.get('user_id')
     if not user_id:
         flash("You need to be logged in to add a mission.")
         return redirect(url_for('login'))
 
-    # Get the new mission from form data
-    new_mission = request.form.get('new_mission')
-
-    # Basic validation
-    if not new_mission:
+    new_mission_content = request.form.get('new_mission')
+    if not new_mission_content:
         flash("Please enter a mission.")
         return redirect(url_for('mission', user_id=user_id))
 
-    # Find the user and update the mission
-    user = User.query.filter_by(id=user_id).first()
-    if user:
-        user.mission = new_mission
-        db.session.commit()
-        flash("Mission added successfully.")
-        return redirect(url_for('mission', user_id=user_id))
-    else:
-        return render_template('error.html', message='User not found'), 404
+    # Create a new mission instance and associate it with the user
+    new_mission = Mission(content=new_mission_content, user_id=user_id)
+    db.session.add(new_mission)
+    db.session.commit()
+    flash("Mission added successfully.")
+    return redirect(url_for('mission', user_id=user_id))
 
 
-@app.route('/delete_mission', methods=['POST'])
-def delete_mission():
-    user_id = request.args.get('user_id')
-    user = User.query.filter_by(id=user_id).first()
-    if user:
-        user.mission = None
+@app.route('/delete_mission/<int:mission_id>', methods=['POST'])
+def delete_mission(mission_id):
+    mission = Mission.query.get(mission_id)
+    if mission and mission.user_id == session.get('user_id'):
+        db.session.delete(mission)
         db.session.commit()
-        return redirect(url_for('mission', user_id=user_id))
+        flash("Mission deleted successfully.")
     else:
-        return render_template('error.html', message='User not found'), 404
+        flash("Mission not found or access denied.")
+    return redirect(url_for('mission', user_id=session.get('user_id')))
 
 
 @app.route('/mission')
 def mission():
     user_id = session.get('user_id')
     if not user_id:
-        return redirect(url_for('login'))  # Redirect to login if not logged in
+        return redirect(url_for('login'))
 
-    user = User.query.filter_by(id=user_id).first()
+    user = User.query.get(user_id)
     if user:
-        return render_template('mission.html', mission=user.mission)
+        missions = user.missions
+        return render_template('mission.html', missions=missions)
     else:
-        return render_template('error.html', message='User not found'), 404
+        return redirect(url_for('login'))
 
 
 if __name__ == '__main__':

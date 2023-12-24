@@ -2,23 +2,35 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Mission</title>
+    <title>Missions</title>
 </head>
 <body>
-    <h1>User Mission</h1>
-    <p>{{ mission }}</p>
+    <h1>Your Missions</h1>
+    {% if missions %}
+        <ul>
+            {% for mission in missions %}
+                <li>
+                    {{ mission.content }}
+                    <!-- Delete Mission Form -->
+                    <form action="{{ url_for('delete_mission', mission_id=mission.id) }}" method="post">
+                        <input type="submit" value="Delete">
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No missions found.</p>
+    {% endif %}
 
-    <!-- Add Mission Button -->
-    <form action="/add_mission?user_id={{ user_id }}" method="post">
+    <hr>
+    <!-- Add a new mission -->
+    <h2>Add a New Mission</h2>
+    <form action="{{ url_for('add_mission') }}" method="post">
         <input type="text" name="new_mission" placeholder="Enter new mission">
-        <button type="submit">Add Mission</button>
+        <input type="submit" value="Add Mission">
     </form>
 
-    <!-- Delete Mission Button -->
-    <form action="/delete_mission?user_id={{ user_id }}" method="post">
-        <button type="submit">Delete Mission</button>
-    </form>
-
-    <a href="/">Back to Home</a>
+    <p><a href="{{ url_for('main') }}">Back to Main</a></p>
+    <p><a href="{{ url_for('logout') }}">Logout</a></p>
 </body>
 </html>
