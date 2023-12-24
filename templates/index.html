@@ -13,5 +13,11 @@
     {% else %}
         <p><a href="/login">Login</a> | <a href="/register">Register</a></p>
     {% endif %}
+
+    {% if error %}
+    <div class="error-message">
+        {{ error }}
+    </div>
+    {% endif %}
 </body>
 </html>
