@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Missions</title>
+    <title>{{ user.username }}'s Missions</title>
 </head>
 <body>
-    <h1>Your Missions</h1>
+    <h1>{{ user.username }}'s Missions</h1>
     {% if missions %}
         <ul>
             {% for mission in missions %}
@@ -22,8 +22,8 @@
         <p>No missions found.</p>
     {% endif %}
 
+    <!-- Form to add a new mission -->
     <hr>
-    <!-- Add a new mission -->
     <h2>Add a New Mission</h2>
     <form action="{{ url_for('add_mission') }}" method="post">
         <input type="text" name="new_mission" placeholder="Enter new mission">
@@ -32,5 +32,15 @@
 
     <p><a href="{{ url_for('main') }}">Back to Main</a></p>
     <p><a href="{{ url_for('logout') }}">Logout</a></p>
+    {% for mission in missions %}
+        <div>
+            <p>Mission added on: {{ mission.date_added.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+            <p>{{ mission.content }}</p>
+            <!-- Delete Mission Form -->
+            <form action="{{ url_for('delete_mission', mission_id=mission.id) }}" method="post">
+             <input type="submit" value="Delete">
+            </form>
+        </div>
+    {% endfor %}
 </body>
 </html>

@@ -23,6 +23,7 @@ class Mission(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.String(200), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    date_added = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
 
 
@@ -160,8 +161,7 @@ def mission():
 
     user = User.query.get(user_id)
     if user:
-        missions = user.missions
-        return render_template('mission.html', missions=missions)
+        return render_template('mission.html', user=user, missions=user.missions)
     else:
         return redirect(url_for('login'))
 
