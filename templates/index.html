@@ -15,17 +15,11 @@
     {% endif %}
 
     {% if error %}
-        <div class="error-message">
-            {{ error }}
-        </div>
+    <div class="error-message">
+        {{ error }}
+    </div>
     {% endif %}
 
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            {% for message in messages %}
-             <div class="flash-message">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
+
 </body>
 </html>
