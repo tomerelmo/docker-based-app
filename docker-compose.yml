@@ -9,7 +9,7 @@ services:
   db:
     image: mysql:5.7
     volumes:
-      - "./data:/var/lib/mysql"
+      - "/var/lib/DataBase:/var/lib/mysql"
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
       MYSQL_DATABASE: mission
