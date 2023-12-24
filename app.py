@@ -89,12 +89,24 @@ def register():
         try:
             db.session.add(new_user)
             db.session.commit()
-            return jsonify({'message': 'User registered successfully'}), 201
+            # Check if the request is from API
+            if request.content_type == 'application/json':
+                return jsonify({'message': 'User registered successfully'}), 201
+            else:
+                # Redirect to index with success message for form submission
+                flash('User registered successfully')
+                return redirect(url_for('main'))
         except IntegrityError:
-            return jsonify({'error': 'Username already exists'}), 409
+            error_message = {'error': 'Username already exists'}
+            if request.content_type == 'application/json':
+                return jsonify(error_message), 409
+            else:
+                flash(error_message['error'])
+                return redirect(url_for('register'))
     else:
         # GET request, show the registration form
         return render_template('register.html')
+
 
 @app.route('/logout')
 def logout():

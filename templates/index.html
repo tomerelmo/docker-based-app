@@ -3,8 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <title>Main Page</title>
+    <style>
+        .flash-message {
+            color: green;
+            /* Additional styling can be added here */
+        }
+        .error-message {
+            color: red;
+            /* Additional styling can be added here */
+        }
+    </style>
 </head>
-<!-- inside index.html -->
 <body>
     <h1>Welcome to the Mission App</h1>
     {% if session.user_id %}
@@ -14,12 +23,21 @@
         <p><a href="/login">Login</a> | <a href="/register">Register</a></p>
     {% endif %}
 
-    {% if error %}
-    <div class="error-message">
-        {{ error }}
-    </div>
-    {% endif %}
+    <!-- Display flash messages -->
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="flash-message">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
 
+    <!-- Display error messages -->
+    {% if error %}
+        <div class="error-message">
+            {{ error }}
+        </div>
+    {% endif %}
 
 </body>
 </html>
