@@ -36,9 +36,6 @@ with app.app_context():
 def main():
     return render_template('index.html')
 
-from flask import Flask, render_template, request, redirect, url_for, jsonify
-from werkzeug.security import check_password_hash
-# ... other imports and setup ...
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
